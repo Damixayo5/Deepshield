@@ -391,15 +391,40 @@ class HybridDeepfakeModel(nn.Module):
 
 @st.cache_resource(show_spinner="Loading model weights...")
 def load_model():
+    st.write("Step 1: Checking model file...")
+
     if not os.path.exists(MODEL_PATH):
+        st.error(f"Model not found: {MODEL_PATH}")
         return None
+
+    st.write("Step 2: Creating model...")
+
     model = HybridDeepfakeModel()
-    state = torch.load(MODEL_PATH, map_location=DEVICE)
+
+    st.write("Step 3: Loading weights...")
+
+    state = torch.load(
+        MODEL_PATH,
+        map_location=torch.device("cpu")
+    )
+
+    st.write("Step 4: Processing state dict...")
+
     if isinstance(state, dict) and "model_state_dict" in state:
         state = state["model_state_dict"]
+
+    st.write("Step 5: Loading into network...")
+
     model.load_state_dict(state)
+
+    st.write("Step 6: Moving to device...")
+
     model.to(DEVICE)
+
     model.eval()
+
+    st.success("Model loaded successfully!")
+
     return model
 
 
